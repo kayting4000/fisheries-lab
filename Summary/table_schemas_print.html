@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fisheries 2026 – Table Schemas & Sample Data</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #1a1a2e; background: #fff; }
+  .page { width: 210mm; padding: 14mm 14mm 10mm 14mm; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  .header { background: #0f3460; color: #fff; padding: 12px 16px; border-radius: 5px; margin-bottom: 14px; }
+  .header h1 { font-size: 18px; }
+  .header p  { font-size: 11px; opacity: .85; margin-top: 3px; }
+
+  h2 { font-size: 13px; color: #0f3460; border-bottom: 2px solid #e94560;
+       padding-bottom: 3px; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: .4px; }
+  h3 { font-size: 12px; color: #e94560; margin: 10px 0 5px; }
+
+  /* Schema box */
+  .schema-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tbl { border: 2px solid #0f3460; border-radius: 4px; min-width: 140px; font-size: 11px; }
+  .tbl .th { background: #0f3460; color: #fff; padding: 5px 8px; font-weight: 700; font-size: 12px; }
+  .tbl .th.fact { background: #e94560; }
+  .tbl ul { list-style: none; padding: 5px 8px; }
+  .tbl ul li { padding: 2px 0; border-bottom: 1px solid #eee; }
+  .tbl ul li:last-child { border: none; }
+  .pk { color: #e94560; font-weight: 700; }
+  .fk { color: #0f3460; font-style: italic; }
+  .gen { color: #888; font-size: 10px; }
+
+  /* Data tables */
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 14px; }
+  th { background: #0f3460; color: #fff; padding: 5px 6px; text-align: left; font-weight: 600; white-space: nowrap; }
+  td { padding: 4px 6px; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+  tr:nth-child(even) td { background: #f7f9ff; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .pelagic   { background: #dbeafe; color: #1e40af; }
+  .demersal  { background: #dcfce7; color: #166534; }
+  .coastal   { background: #fef9c3; color: #854d0e; }
+  .fresh     { background: #ede9fe; color: #5b21b6; }
+  .ceph      { background: #fee2e2; color: #991b1b; }
+  .crust     { background: #ffedd5; color: #9a3412; }
+
+  .footer { margin-top: 12px; font-size: 10px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 6px; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE 1: STAR SCHEMA + dim_date + dim_port ═══ -->
+<div class="page">
+  <div class="header">
+    <h1>🐟 Fisheries 2026 – Star Schema Tables & Sample Data</h1>
+    <p>MSU-ICTO Fisheries Analytics | Labs 1–3 | PostgreSQL 16</p>
+  </div>
+
+  <h2>Star Schema Overview</h2>
+  <div class="schema-grid">
+    <div class="tbl">
+      <div class="th">dim_date</div>
+      <ul>
+        <li><span class="pk">PK</span> date_key INT</li>
+        <li>full_date DATE</li><li>day SMALLINT</li>
+        <li>month SMALLINT</li><li>month_name VARCHAR</li>
+        <li>quarter SMALLINT</li><li>year SMALLINT</li>
+        <li>week_of_year SMALLINT</li>
+        <li>day_of_week SMALLINT</li>
+        <li>day_name VARCHAR</li><li>is_weekend BOOL</li>
+      </ul>
+    </div>
+    <div class="tbl">
+      <div class="th fact">fact_landing</div>
+      <ul>
+        <li><span class="pk">PK</span> landing_key BIGSERIAL</li>
+        <li><span class="fk">FK</span> date_key INT</li>
+        <li><span class="fk">FK</span> port_key INT</li>
+        <li><span class="fk">FK</span> species_key INT</li>
+        <li><span class="fk">FK</span> vessel_key INT</li>
+        <li>quantity_kg NUMERIC</li>
+        <li>price_per_kg NUMERIC</li>
+        <li>total_value NUMERIC <span class="gen">(generated)</span></li>
+        <li>trip_days SMALLINT</li>
+      </ul>
+    </div>
+    <div class="tbl">
+      <div class="th">dim_port</div>
+      <ul>
+        <li><span class="pk">PK</span> port_key SERIAL</li>
+        <li>port_code VARCHAR(10)</li>
+        <li>port_name VARCHAR(100)</li>
+        <li>municipality VARCHAR</li>
+        <li>province VARCHAR</li>
+        <li>region VARCHAR</li>
+        <li>cooperative VARCHAR</li>
+      </ul>
+    </div>
+    <div class="tbl">
+      <div class="th">dim_species</div>
+      <ul>
+        <li><span class="pk">PK</span> species_key SERIAL</li>
+        <li>species_code VARCHAR(10)</li>
+        <li>common_name VARCHAR</li>
+        <li>scientific_name VARCHAR</li>
+        <li>family VARCHAR</li>
+        <li>category VARCHAR</li>
+      </ul>
+    </div>
+    <div class="tbl">
+      <div class="th">dim_vessel</div>
+      <ul>
+        <li><span class="pk">PK</span> vessel_key SERIAL</li>
+        <li>vessel_code VARCHAR(20)</li>
+        <li>vessel_name VARCHAR</li>
+        <li>vessel_type VARCHAR</li>
+        <li>gross_tonnage NUMERIC</li>
+        <li>owner_name VARCHAR</li>
+        <li>cooperative VARCHAR</li>
+        <li>effective_date DATE</li>
+        <li>expiry_date DATE</li>
+        <li>is_current BOOL <span class="gen">(SCD2)</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>dim_date — Sample Rows (10 of 173)</h2>
+  <table>
+    <tr><th>date_key</th><th>full_date</th><th>day</th><th>month</th><th>month_name</th><th>quarter</th><th>year</th><th>day_name</th><th>is_weekend</th></tr>
+    <tr><td>20260101</td><td>2026-01-01</td><td>1</td><td>1</td><td>January</td><td>1</td><td>2026</td><td>Thursday</td><td>false</td></tr>
+    <tr><td>20260105</td><td>2026-01-05</td><td>5</td><td>1</td><td>January</td><td>1</td><td>2026</td><td>Monday</td><td>false</td></tr>
+    <tr><td>20260217</td><td>2026-02-17</td><td>17</td><td>2</td><td>February</td><td>1</td><td>2026</td><td>Tuesday</td><td>false</td></tr>
+    <tr><td>20260316</td><td>2026-03-16</td><td>16</td><td>3</td><td>March</td><td>1</td><td>2026</td><td>Monday</td><td>false</td></tr>
+    <tr><td>20260413</td><td>2026-04-13</td><td>13</td><td>4</td><td>April</td><td>2</td><td>2026</td><td>Monday</td><td>false</td></tr>
+    <tr><td>20260519</td><td>2026-05-19</td><td>19</td><td>5</td><td>May</td><td>2</td><td>2026</td><td>Tuesday</td><td>false</td></tr>
+    <tr><td>20260622</td><td>2026-06-22</td><td>22</td><td>6</td><td>June</td><td>2</td><td>2026</td><td>Monday</td><td>false</td></tr>
+    <tr><td>20260715</td><td>2026-07-15</td><td>15</td><td>7</td><td>July</td><td>3</td><td>2026</td><td>Wednesday</td><td>false</td></tr>
+    <tr><td>20260823</td><td>2026-08-23</td><td>23</td><td>8</td><td>August</td><td>3</td><td>2026</td><td>Sunday</td><td>true</td></tr>
+    <tr><td>20261228</td><td>2026-12-28</td><td>28</td><td>12</td><td>December</td><td>4</td><td>2026</td><td>Monday</td><td>false</td></tr>
+  </table>
+
+  <h2>dim_port — All 10 Rows</h2>
+  <table>
+    <tr><th>port_key</th><th>port_code</th><th>port_name</th><th>province</th><th>region</th><th>cooperative</th></tr>
+    <tr><td>1</td><td>PRT001</td><td>General Santos Fish Port</td><td>South Cotabato</td><td>Region XII</td><td>GenSan Fishers Coop</td></tr>
+    <tr><td>2</td><td>PRT002</td><td>Navotas Fish Port</td><td>Metro Manila</td><td>NCR</td><td>Navotas United Coop</td></tr>
+    <tr><td>3</td><td>PRT003</td><td>Iloilo Fish Port</td><td>Iloilo</td><td>Region VI</td><td>Iloilo Fishers Coop</td></tr>
+    <tr><td>4</td><td>PRT004</td><td>Davao Fish Port</td><td>Davao del Sur</td><td>Region XI</td><td>Davao Fishers Coop</td></tr>
+    <tr><td>5</td><td>PRT005</td><td>Zamboanga Fish Port</td><td>Zamboanga del Sur</td><td>Region IX</td><td>Zamboanga Coop</td></tr>
+    <tr><td>6</td><td>PRT006</td><td>Cebu Fish Port</td><td>Cebu</td><td>Region VII</td><td>Cebu Fishers Coop</td></tr>
+    <tr><td>7</td><td>PRT007</td><td>Lucena Fish Port</td><td>Quezon</td><td>Region IV-A</td><td>Lucena Fishers Coop</td></tr>
+    <tr><td>8</td><td>PRT008</td><td>Batangas Fish Port</td><td>Batangas</td><td>Region IV-A</td><td>Batangas Coop</td></tr>
+    <tr><td>9</td><td>PRT009</td><td>Cagayan de Oro Fish Port</td><td>Misamis Oriental</td><td>Region X</td><td>CDO Fishers Coop</td></tr>
+    <tr><td>10</td><td>PRT010</td><td>Tacloban Fish Port</td><td>Leyte</td><td>Region VIII</td><td>Tacloban Coop</td></tr>
+  </table>
+
+  <div class="footer">Page 1 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+
+<!-- ═══ PAGE 2: dim_species + dim_vessel ═══ -->
+<div class="page">
+  <div class="header">
+    <h1>🐟 Fisheries 2026 – dim_species &amp; dim_vessel</h1>
+    <p>MSU-ICTO Fisheries Analytics | Labs 1–3 | PostgreSQL 16</p>
+  </div>
+
+  <h2>dim_species — All 10 Rows</h2>
+  <table>
+    <tr><th>species_key</th><th>species_code</th><th>common_name</th><th>scientific_name</th><th>family</th><th>category</th></tr>
+    <tr><td>1</td><td>SPC001</td><td>Yellowfin Tuna</td><td>Thunnus albacares</td><td>Scombridae</td><td><span class="badge pelagic">Pelagic</span></td></tr>
+    <tr><td>2</td><td>SPC002</td><td>Skipjack Tuna</td><td>Katsuwonus pelamis</td><td>Scombridae</td><td><span class="badge pelagic">Pelagic</span></td></tr>
+    <tr><td>3</td><td>SPC003</td><td>Milkfish</td><td>Chanos chanos</td><td>Chanidae</td><td><span class="badge coastal">Coastal</span></td></tr>
+    <tr><td>4</td><td>SPC004</td><td>Tilapia</td><td>Oreochromis niloticus</td><td>Cichlidae</td><td><span class="badge fresh">Freshwater</span></td></tr>
+    <tr><td>5</td><td>SPC005</td><td>Blue Marlin</td><td>Makaira nigricans</td><td>Istiophoridae</td><td><span class="badge pelagic">Pelagic</span></td></tr>
+    <tr><td>6</td><td>SPC006</td><td>Grouper</td><td>Epinephelus coioides</td><td>Serranidae</td><td><span class="badge demersal">Demersal</span></td></tr>
+    <tr><td>7</td><td>SPC007</td><td>Squid</td><td>Loligo duvaucelii</td><td>Loliginidae</td><td><span class="badge ceph">Cephalopod</span></td></tr>
+    <tr><td>8</td><td>SPC008</td><td>Shrimp</td><td>Penaeus monodon</td><td>Penaeidae</td><td><span class="badge crust">Crustacean</span></td></tr>
+    <tr><td>9</td><td>SPC009</td><td>Sardine</td><td>Sardinella lemuru</td><td>Clupeidae</td><td><span class="badge pelagic">Pelagic</span></td></tr>
+    <tr><td>10</td><td>SPC010</td><td>Mackerel</td><td>Rastrelliger kanagurta</td><td>Scombridae</td><td><span class="badge pelagic">Pelagic</span></td></tr>
+  </table>
+
+  <h2>dim_vessel — All 10 Rows (SCD Type 2)</h2>
+  <table>
+    <tr><th>vessel_key</th><th>vessel_code</th><th>vessel_name</th><th>vessel_type</th><th>gross_tonnage</th><th>owner_name</th><th>effective_date</th><th>expiry_date</th><th>is_current</th></tr>
+    <tr><td>1</td><td>VSL001</td><td>Amanah I</td><td>Motorized Banca</td><td>3.50</td><td>Ahmad Reyes</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>2</td><td>VSL002</td><td>Barakah II</td><td>Fishing Vessel</td><td>25.00</td><td>Jose Santos</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>3</td><td>VSL003</td><td>Rizal Star</td><td>Motorized Banca</td><td>4.20</td><td>Maria Cruz</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>4</td><td>VSL004</td><td>Davao Pride</td><td>Fishing Vessel</td><td>30.00</td><td>Pedro Lim</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>5</td><td>VSL005</td><td>Southern Cross</td><td>Trawler</td><td>55.00</td><td>Ana Gomez</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>6</td><td>VSL006</td><td>Cebu Sunrise</td><td>Motorized Banca</td><td>5.00</td><td>Luis Tan</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>7</td><td>VSL007</td><td>Quezon Fisher</td><td>Fishing Vessel</td><td>18.00</td><td>Rosa Dela Cruz</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>8</td><td>VSL008</td><td>Batangas Bay</td><td>Motorized Banca</td><td>3.80</td><td>Carlos Reyes</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>9</td><td>VSL009</td><td>Mindanao Star</td><td>Fishing Vessel</td><td>22.00</td><td>Elena Bautista</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+    <tr><td>10</td><td>VSL010</td><td>Leyte Wave</td><td>Motorized Banca</td><td>4.00</td><td>Ramon Villanueva</td><td>2026-01-01</td><td>9999-12-31</td><td>true</td></tr>
+  </table>
+
+  <h2>Species Mapping Table (stg.species_map) — Sample</h2>
+  <table>
+    <tr><th>raw_name (as entered)</th><th>maps to species_code</th><th>canonical common_name</th></tr>
+    <tr><td>bangus</td><td>SPC003</td><td>Milkfish</td></tr>
+    <tr><td>Tilapya</td><td>SPC004</td><td>Tilapia</td></tr>
+    <tr><td>Lapu-lapu</td><td>SPC006</td><td>Grouper</td></tr>
+    <tr><td>pusit</td><td>SPC007</td><td>Squid</td></tr>
+    <tr><td>Hipon</td><td>SPC008</td><td>Shrimp</td></tr>
+    <tr><td>Hasa-hasa</td><td>SPC010</td><td>Mackerel</td></tr>
+    <tr><td>YF Tuna</td><td>SPC001</td><td>Yellowfin Tuna</td></tr>
+    <tr><td>Skip Jack Tuna</td><td>SPC002</td><td>Skipjack Tuna</td></tr>
+    <tr><td>Bluemarlin</td><td>SPC005</td><td>Blue Marlin</td></tr>
+    <tr><td>Sardines</td><td>SPC009</td><td>Sardine</td></tr>
+  </table>
+
+  <div class="footer">Page 2 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+
+<!-- ═══ PAGE 3: fact_landing sample ═══ -->
+<div class="page">
+  <div class="header">
+    <h1>🐟 Fisheries 2026 – fact_landing (Sample 20 of 257 rows)</h1>
+    <p>MSU-ICTO Fisheries Analytics | Labs 1–3 | PostgreSQL 16</p>
+  </div>
+
+  <h2>fact_landing — Sample Data</h2>
+  <table>
+    <tr><th>landing_key</th><th>date_key</th><th>port_key</th><th>species_key</th><th>vessel_key</th><th>quantity_kg</th><th>price_per_kg</th><th>total_value</th><th>trip_days</th></tr>
+    <tr><td>1</td><td>20260217</td><td>3</td><td>10</td><td>10</td><td>212.64</td><td>342.28</td><td>72,782.42</td><td>5</td></tr>
+    <tr><td>2</td><td>20260106</td><td>5</td><td>10</td><td>10</td><td>467.20</td><td>276.85</td><td>129,344.32</td><td>3</td></tr>
+    <tr><td>3</td><td>20260413</td><td>2</td><td>4</td><td>6</td><td>352.75</td><td>121.61</td><td>42,897.93</td><td>6</td></tr>
+    <tr><td>4</td><td>20260925</td><td>8</td><td>7</td><td>8</td><td>356.19</td><td>183.11</td><td>65,221.95</td><td>1</td></tr>
+    <tr><td>5</td><td>20260519</td><td>4</td><td>9</td><td>7</td><td>628.55</td><td>356.29</td><td>223,946.08</td><td>6</td></tr>
+    <tr><td>6</td><td>20260614</td><td>3</td><td>9</td><td>4</td><td>587.63</td><td>412.86</td><td>242,608.92</td><td>2</td></tr>
+    <tr><td>7</td><td>20260916</td><td>4</td><td>8</td><td>5</td><td>727.87</td><td>178.49</td><td>129,917.52</td><td>3</td></tr>
+    <tr><td>8</td><td>20260527</td><td>9</td><td>4</td><td>10</td><td>405.22</td><td>147.85</td><td>59,911.78</td><td>7</td></tr>
+    <tr><td>9</td><td>20260622</td><td>10</td><td>6</td><td>1</td><td>363.21</td><td>314.34</td><td>114,171.43</td><td>4</td></tr>
+    <tr><td>10</td><td>20260523</td><td>8</td><td>10</td><td>4</td><td>709.28</td><td>499.42</td><td>354,228.62</td><td>2</td></tr>
+    <tr><td>11</td><td>20260614</td><td>2</td><td>10</td><td>5</td><td>550.59</td><td>209.54</td><td>115,370.63</td><td>2</td></tr>
+    <tr><td>12</td><td>20260715</td><td>1</td><td>1</td><td>2</td><td>741.80</td><td>416.25</td><td>308,774.25</td><td>1</td></tr>
+    <tr><td>13</td><td>20260221</td><td>3</td><td>5</td><td>8</td><td>444.72</td><td>282.65</td><td>125,700.11</td><td>4</td></tr>
+    <tr><td>14</td><td>20260805</td><td>9</td><td>8</td><td>7</td><td>580.86</td><td>362.56</td><td>210,596.60</td><td>3</td></tr>
+    <tr><td>15</td><td>20260123</td><td>7</td><td>9</td><td>1</td><td>396.01</td><td>109.39</td><td>43,319.53</td><td>6</td></tr>
+    <tr><td>16</td><td>20261019</td><td>4</td><td>10</td><td>1</td><td>211.99</td><td>344.19</td><td>72,964.84</td><td>5</td></tr>
+    <tr><td>17</td><td>20260225</td><td>5</td><td>9</td><td>6</td><td>695.54</td><td>434.34</td><td>302,100.84</td><td>3</td></tr>
+    <tr><td>18</td><td>20260218</td><td>4</td><td>5</td><td>9</td><td>936.60</td><td>449.96</td><td>421,432.54</td><td>2</td></tr>
+    <tr><td>19</td><td>20260901</td><td>9</td><td>2</td><td>4</td><td>734.07</td><td>285.20</td><td>209,356.76</td><td>7</td></tr>
+    <tr><td>20</td><td>20260321</td><td>3</td><td>10</td><td>7</td><td>415.53</td><td>330.27</td><td>137,237.09</td><td>4</td></tr>
+  </table>
+
+  <h2>ETL Summary</h2>
+  <table>
+    <tr><th>Stage</th><th>Table</th><th>Row Count</th><th>Notes</th></tr>
+    <tr><td>Raw Load</td><td>stg.landings_raw</td><td>290</td><td>All TEXT columns, loaded via \copy</td></tr>
+    <tr><td>Rejected</td><td>stg.landings_rejected</td><td>33</td><td>Missing, duplicates, outliers, unmapped species</td></tr>
+    <tr><td>Clean</td><td>stg.landings_clean</td><td>257</td><td>Typed, deduped, species mapped</td></tr>
+    <tr><td>Dimension</td><td>dw.dim_port</td><td>10</td><td>Upserted from clean data</td></tr>
+    <tr><td>Dimension</td><td>dw.dim_species</td><td>10</td><td>Pre-loaded canonical species</td></tr>
+    <tr><td>Dimension</td><td>dw.dim_vessel</td><td>10</td><td>Upserted, SCD Type 2</td></tr>
+    <tr><td>Dimension</td><td>dw.dim_date</td><td>173</td><td>Distinct landing dates in 2026</td></tr>
+    <tr><td>Fact</td><td>dw.fact_landing</td><td>257</td><td>INSERT...SELECT via dimension JOINs</td></tr>
+  </table>
+
+  <div class="footer">Page 3 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+</body>
+</html>
