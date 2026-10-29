@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fisheries 2026 – Power BI Summary Report</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1a1a2e; background: #fff; }
+
+  /* ── Page breaks ── */
+  .page { width: 210mm; min-height: 297mm; padding: 18mm 18mm 14mm 18mm; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  /* ── Header band ── */
+  .header { background: #0f3460; color: #fff; padding: 18px 22px; border-radius: 6px; margin-bottom: 18px; }
+  .header h1 { font-size: 22px; letter-spacing: .5px; }
+  .header p  { font-size: 12px; opacity: .85; margin-top: 4px; }
+
+  /* ── Section titles ── */
+  h2 { font-size: 14px; color: #0f3460; border-bottom: 2px solid #e94560; padding-bottom: 4px;
+       margin: 18px 0 10px; text-transform: uppercase; letter-spacing: .4px; }
+  h3 { font-size: 13px; color: #16213e; margin: 14px 0 6px; }
+
+  /* ── KPI cards ── */
+  .kpi-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .kpi { flex: 1; min-width: 110px; background: #f0f4ff; border-left: 4px solid #0f3460;
+         border-radius: 4px; padding: 10px 12px; }
+  .kpi .val { font-size: 20px; font-weight: 700; color: #0f3460; }
+  .kpi .lbl { font-size: 11px; color: #555; margin-top: 2px; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 14px; }
+  th { background: #0f3460; color: #fff; padding: 6px 8px; text-align: left; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e8e8e8; }
+  tr:nth-child(even) td { background: #f7f9ff; }
+
+  /* ── Schema diagram ── */
+  .schema { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; margin: 10px 0; }
+  .tbl-box { border: 2px solid #0f3460; border-radius: 5px; min-width: 130px; font-size: 11px; }
+  .tbl-box .tbl-head { background: #0f3460; color: #fff; padding: 5px 8px; font-weight: 700; font-size: 12px; }
+  .tbl-box .tbl-head.fact { background: #e94560; }
+  .tbl-box ul { list-style: none; padding: 6px 8px; }
+  .tbl-box ul li { padding: 2px 0; border-bottom: 1px solid #eee; }
+  .tbl-box ul li:last-child { border: none; }
+  .pk { color: #e94560; font-weight: 700; }
+  .fk { color: #0f3460; font-style: italic; }
+  .arrow { font-size: 22px; color: #0f3460; align-self: center; }
+
+  /* ── Steps ── */
+  ol.steps { padding-left: 18px; }
+  ol.steps li { margin-bottom: 8px; line-height: 1.6; }
+  ol.steps li strong { color: #0f3460; }
+  code { background: #f0f4ff; padding: 1px 5px; border-radius: 3px; font-size: 11.5px; font-family: Consolas, monospace; }
+
+  /* ── DQ table colors ── */
+  .red   { color: #c0392b; font-weight: 700; }
+  .green { color: #27ae60; font-weight: 700; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 20px; font-size: 10px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 8px; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE 1 – COVER + KPIs + DATA QUALITY SUMMARY
+═══════════════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="header">
+    <h1>&#x1F41F; Fisheries Landing Data – 2026 Summary Report</h1>
+    <p>ETL Pipeline &amp; Star Schema | Labs 2–3 | MSU-ICTO Fisheries Analytics</p>
+  </div>
+
+  <h2>Dataset Overview</h2>
+  <div class="kpi-row">
+    <div class="kpi"><div class="val">290</div><div class="lbl">Raw Rows Loaded</div></div>
+    <div class="kpi"><div class="val">257</div><div class="lbl">Clean Rows (Facts)</div></div>
+    <div class="kpi"><div class="val">33</div><div class="lbl">Rows Rejected</div></div>
+    <div class="kpi"><div class="val">10</div><div class="lbl">Ports</div></div>
+    <div class="kpi"><div class="val">10</div><div class="lbl">Vessels</div></div>
+    <div class="kpi"><div class="val">10</div><div class="lbl">Species</div></div>
+  </div>
+
+  <h2>Data Quality Summary</h2>
+  <table>
+    <tr><th>Issue Type</th><th>Description</th><th>Rows Affected</th><th>Action</th></tr>
+    <tr><td>Missing Values</td><td>Blank port, vessel, species, quantity, price, or trip_days</td><td class="red">~15</td><td>Rejected</td></tr>
+    <tr><td>Duplicate Rows</td><td>Exact duplicate records in raw file</td><td class="red">~10</td><td>Deduplicated (keep 1)</td></tr>
+    <tr><td>Outlier – Quantity</td><td>quantity_kg &gt; 10,000 kg (implausible)</td><td class="red">~5</td><td>Rejected</td></tr>
+    <tr><td>Outlier – Price</td><td>price_per_kg &gt; 2,000 PHP (above market)</td><td class="red">~8</td><td>Rejected</td></tr>
+    <tr><td>Inconsistent Species</td><td>Same species with different casing/local names (e.g. "bangus", "pusit")</td><td class="red">~40 variants</td><td>Mapped via species_map</td></tr>
+    <tr><td><strong>Total Rejected</strong></td><td></td><td class="red"><strong>33</strong></td><td></td></tr>
+    <tr><td><strong>Total Loaded</strong></td><td></td><td class="green"><strong>257</strong></td><td>Into fact_landing</td></tr>
+  </table>
+
+  <h2>Cleaning Rules Applied</h2>
+  <table>
+    <tr><th>Rule</th><th>Threshold / Logic</th></tr>
+    <tr><td>Reject missing fields</td><td>Any blank/NULL in required column</td></tr>
+    <tr><td>Reject non-numeric measures</td><td>quantity_kg, price_per_kg, trip_days must be numeric</td></tr>
+    <tr><td>Reject quantity outliers</td><td>quantity_kg &le; 0 or &gt; 10,000 kg</td></tr>
+    <tr><td>Reject price outliers</td><td>price_per_kg &le; 0 or &gt; 2,000 PHP</td></tr>
+    <tr><td>Reject trip_days outliers</td><td>trip_days &lt; 1 or &gt; 30</td></tr>
+    <tr><td>Deduplicate</td><td>Exact row match across all 7 columns</td></tr>
+    <tr><td>Normalise species name</td><td>LOWER(TRIM()) → lookup in species_map → canonical species_code</td></tr>
+  </table>
+
+  <div class="footer">Page 1 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE 2 – STAR SCHEMA DIAGRAM + TABLE DESCRIPTIONS
+═══════════════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="header">
+    <h1>&#x2B50; Star Schema Design</h1>
+    <p>Fisheries Data Warehouse – Dimension &amp; Fact Tables</p>
+  </div>
+
+  <h2>Schema Diagram</h2>
+  <div class="schema">
+
+    <div class="tbl-box">
+      <div class="tbl-head">dim_date</div>
+      <ul>
+        <li><span class="pk">PK</span> date_key (INT)</li>
+        <li>full_date</li><li>day / month / year</li>
+        <li>month_name</li><li>quarter</li>
+        <li>week_of_year</li><li>day_of_week</li>
+        <li>day_name</li><li>is_weekend</li>
+      </ul>
+    </div>
+
+    <div class="arrow">&#x2192;</div>
+
+    <div class="tbl-box">
+      <div class="tbl-head fact">fact_landing</div>
+      <ul>
+        <li><span class="pk">PK</span> landing_key</li>
+        <li><span class="fk">FK</span> date_key</li>
+        <li><span class="fk">FK</span> port_key</li>
+        <li><span class="fk">FK</span> species_key</li>
+        <li><span class="fk">FK</span> vessel_key</li>
+        <li>quantity_kg</li>
+        <li>price_per_kg</li>
+        <li>total_value</li>
+        <li>trip_days</li>
+      </ul>
+    </div>
+
+    <div class="arrow">&#x2192;</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="tbl-box">
+        <div class="tbl-head">dim_port</div>
+        <ul>
+          <li><span class="pk">PK</span> port_key</li>
+          <li>port_code</li><li>port_name</li>
+          <li>municipality</li><li>province</li>
+          <li>region</li><li>cooperative</li>
+        </ul>
+      </div>
+      <div class="tbl-box">
+        <div class="tbl-head">dim_species</div>
+        <ul>
+          <li><span class="pk">PK</span> species_key</li>
+          <li>species_code</li><li>common_name</li>
+          <li>scientific_name</li><li>family</li>
+          <li>category</li>
+        </ul>
+      </div>
+      <div class="tbl-box">
+        <div class="tbl-head">dim_vessel</div>
+        <ul>
+          <li><span class="pk">PK</span> vessel_key</li>
+          <li>vessel_code</li><li>vessel_name</li>
+          <li>vessel_type</li><li>gross_tonnage</li>
+          <li>owner_name</li><li>cooperative</li>
+          <li>effective_date</li><li>expiry_date</li>
+          <li>is_current (SCD2)</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Relationships (Power BI Model View)</h2>
+  <table>
+    <tr><th>From (Fact)</th><th>To (Dimension)</th><th>Join Key</th><th>Cardinality</th></tr>
+    <tr><td>fact_landing.date_key</td><td>dim_date.date_key</td><td>date_key</td><td>Many-to-One (*:1)</td></tr>
+    <tr><td>fact_landing.port_key</td><td>dim_port.port_key</td><td>port_key</td><td>Many-to-One (*:1)</td></tr>
+    <tr><td>fact_landing.species_key</td><td>dim_species.species_key</td><td>species_key</td><td>Many-to-One (*:1)</td></tr>
+    <tr><td>fact_landing.vessel_key</td><td>dim_vessel.vessel_key</td><td>vessel_key</td><td>Many-to-One (*:1)</td></tr>
+  </table>
+
+  <h2>Species Mapping (Raw → Canonical)</h2>
+  <table>
+    <tr><th>Canonical Name</th><th>Code</th><th>Raw Variants Mapped</th></tr>
+    <tr><td>Yellowfin Tuna</td><td>SPC001</td><td>yellowfin tuna, YF Tuna, Yellow Fin Tuna, Yellowfin</td></tr>
+    <tr><td>Skipjack Tuna</td><td>SPC002</td><td>skipjack, Skip Jack Tuna, Skipjack tuna</td></tr>
+    <tr><td>Milkfish</td><td>SPC003</td><td>Milk Fish, MILKFISH, bangus</td></tr>
+    <tr><td>Tilapia</td><td>SPC004</td><td>TILAPIA, Tilapya, tilapia</td></tr>
+    <tr><td>Blue Marlin</td><td>SPC005</td><td>Bluemarlin, Blue-Marlin, blue marlin</td></tr>
+    <tr><td>Grouper</td><td>SPC006</td><td>GROUPER, Lapu-lapu, grouper</td></tr>
+    <tr><td>Squid</td><td>SPC007</td><td>SQUID, pusit, squid</td></tr>
+    <tr><td>Shrimp</td><td>SPC008</td><td>SHRIMP, Hipon, shrimp</td></tr>
+    <tr><td>Sardine</td><td>SPC009</td><td>Sardines, SARDINE, sardine</td></tr>
+    <tr><td>Mackerel</td><td>SPC010</td><td>MACKEREL, Hasa-hasa, mackerel</td></tr>
+  </table>
+
+  <div class="footer">Page 2 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE 3 – POWER BI STEP-BY-STEP GUIDE
+═══════════════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="header">
+    <h1>&#x1F4CA; Power BI – Step-by-Step Setup Guide</h1>
+    <p>Load CSVs, build star schema model, create visuals, export PDF</p>
+  </div>
+
+  <h2>Step 1 – Load the 5 CSV Files</h2>
+  <ol class="steps">
+    <li>Open <strong>Power BI Desktop</strong> → <strong>Home &gt; Get Data &gt; Text/CSV</strong></li>
+    <li>Load each file from the <code>powerbi/</code> folder one at a time:<br>
+        <code>dim_date.csv</code> &nbsp; <code>dim_port.csv</code> &nbsp; <code>dim_species.csv</code> &nbsp;
+        <code>dim_vessel.csv</code> &nbsp; <code>fact_landing.csv</code></li>
+    <li>For each file click <strong>Transform Data</strong> → verify column types → <strong>Close &amp; Apply</strong></li>
+    <li>Set column types: <code>date_key</code> = Whole Number, <code>full_date</code> = Date,
+        <code>quantity_kg / price_per_kg / total_value</code> = Decimal Number,
+        <code>is_weekend / is_current</code> = True/False</li>
+  </ol>
+
+  <h2>Step 2 – Build the Star Schema (Model View)</h2>
+  <ol class="steps">
+    <li>Click the <strong>Model</strong> icon (left sidebar)</li>
+    <li>Drag <code>fact_landing[date_key]</code> → <code>dim_date[date_key]</code></li>
+    <li>Drag <code>fact_landing[port_key]</code> → <code>dim_port[port_key]</code></li>
+    <li>Drag <code>fact_landing[species_key]</code> → <code>dim_species[species_key]</code></li>
+    <li>Drag <code>fact_landing[vessel_key]</code> → <code>dim_vessel[vessel_key]</code></li>
+    <li>Confirm all relationships are <strong>Many-to-One (*:1)</strong> with <strong>Single</strong> cross-filter direction</li>
+  </ol>
+
+  <h2>Step 3 – Create DAX Measures</h2>
+  <ol class="steps">
+    <li>In <strong>Report View</strong>, click <strong>New Measure</strong> and add:<br>
+        <code>Total Quantity KG = SUM(fact_landing[quantity_kg])</code><br>
+        <code>Total Value = SUM(fact_landing[total_value])</code><br>
+        <code>Avg Price per KG = AVERAGE(fact_landing[price_per_kg])</code><br>
+        <code>Total Landings = COUNTROWS(fact_landing)</code></li>
+  </ol>
+
+  <h2>Step 4 – Build Report Visuals</h2>
+  <table>
+    <tr><th>Visual</th><th>Axis / Legend</th><th>Values</th></tr>
+    <tr><td>Clustered Bar Chart</td><td>dim_species[common_name]</td><td>Total Quantity KG</td></tr>
+    <tr><td>Line Chart</td><td>dim_date[month_name]</td><td>Total Value</td></tr>
+    <tr><td>Map / Filled Map</td><td>dim_port[province]</td><td>Total Landings</td></tr>
+    <tr><td>Donut Chart</td><td>dim_species[category]</td><td>Total Quantity KG</td></tr>
+    <tr><td>Table</td><td>dim_port[port_name], dim_species[common_name]</td><td>Total Value, Avg Price per KG</td></tr>
+    <tr><td>Card KPIs (4x)</td><td>–</td><td>Total Landings, Total Quantity KG, Total Value, Avg Price per KG</td></tr>
+  </table>
+
+  <h2>Step 5 – Export as PDF</h2>
+  <ol class="steps">
+    <li>Go to <strong>File &gt; Export &gt; Export to PDF</strong></li>
+    <li>Save as <code>fisheries_2026_summary.pdf</code></li>
+    <li><em>Alternative:</em> Open this HTML file in any browser → <strong>Ctrl+P</strong> → <strong>Save as PDF</strong></li>
+  </ol>
+
+  <h2>Files Reference</h2>
+  <table>
+    <tr><th>File</th><th>Purpose</th></tr>
+    <tr><td><code>powerbi/dim_date.csv</code></td><td>173 date rows for 2026 landing dates</td></tr>
+    <tr><td><code>powerbi/dim_port.csv</code></td><td>10 Philippine fish ports</td></tr>
+    <tr><td><code>powerbi/dim_species.csv</code></td><td>10 species with scientific names &amp; categories</td></tr>
+    <tr><td><code>powerbi/dim_vessel.csv</code></td><td>10 vessels with SCD2 columns</td></tr>
+    <tr><td><code>powerbi/fact_landing.csv</code></td><td>257 clean landing transactions</td></tr>
+    <tr><td><code>lab2_3_etl_pipeline.sql</code></td><td>Full PostgreSQL ETL pipeline</td></tr>
+    <tr><td><code>lab1_fisheries_star_schema.sql</code></td><td>Star schema DDL + Lab 1 data</td></tr>
+  </table>
+
+  <div class="footer">Page 3 of 3 &nbsp;|&nbsp; Fisheries Landing Analytics 2026 &nbsp;|&nbsp; MSU-ICTO</div>
+</div>
+
+</body>
+</html>

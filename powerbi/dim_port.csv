@@ -1,0 +1,11 @@
+port_key,port_code,port_name,municipality,province,region,cooperative
+1,PRT001,General Santos Fish Port,General Santos,South Cotabato,Region XII,GenSan Fishers Coop
+2,PRT002,Navotas Fish Port,Navotas,Metro Manila,NCR,Navotas United Coop
+3,PRT003,Iloilo Fish Port,Iloilo City,Iloilo,Region VI,Iloilo Fishers Coop
+4,PRT004,Davao Fish Port,Davao City,Davao del Sur,Region XI,Davao Fishers Coop
+5,PRT005,Zamboanga Fish Port,Zamboanga City,Zamboanga del Sur,Region IX,Zamboanga Coop
+6,PRT006,Cebu Fish Port,Cebu City,Cebu,Region VII,Cebu Fishers Coop
+7,PRT007,Lucena Fish Port,Lucena City,Quezon,Region IV-A,Lucena Fishers Coop
+8,PRT008,Batangas Fish Port,Batangas City,Batangas,Region IV-A,Batangas Coop
+9,PRT009,Cagayan de Oro Fish Port,Cagayan de Oro,Misamis Oriental,Region X,CDO Fishers Coop
+10,PRT010,Tacloban Fish Port,Tacloban City,Leyte,Region VIII,Tacloban Coop

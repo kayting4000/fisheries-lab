@@ -1,0 +1,11 @@
+species_key,species_code,common_name,scientific_name,family,category
+1,SPC001,Yellowfin Tuna,Thunnus albacares,Scombridae,Pelagic
+2,SPC002,Skipjack Tuna,Katsuwonus pelamis,Scombridae,Pelagic
+3,SPC003,Milkfish,Chanos chanos,Chanidae,Coastal
+4,SPC004,Tilapia,Oreochromis niloticus,Cichlidae,Freshwater
+5,SPC005,Blue Marlin,Makaira nigricans,Istiophoridae,Pelagic
+6,SPC006,Grouper,Epinephelus coioides,Serranidae,Demersal
+7,SPC007,Squid,Loligo duvaucelii,Loliginidae,Cephalopod
+8,SPC008,Shrimp,Penaeus monodon,Penaeidae,Crustacean
+9,SPC009,Sardine,Sardinella lemuru,Clupeidae,Pelagic
+10,SPC010,Mackerel,Rastrelliger kanagurta,Scombridae,Pelagic

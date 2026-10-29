@@ -1,0 +1,11 @@
+vessel_key,vessel_code,vessel_name,vessel_type,gross_tonnage,owner_name,cooperative,effective_date,expiry_date,is_current
+1,VSL001,Amanah I,Motorized Banca,3.5,Ahmad Reyes,GenSan Fishers Coop,2026-01-01,9999-12-31,True
+2,VSL002,Barakah II,Fishing Vessel,25.0,Jose Santos,Navotas United Coop,2026-01-01,9999-12-31,True
+3,VSL003,Rizal Star,Motorized Banca,4.2,Maria Cruz,Iloilo Fishers Coop,2026-01-01,9999-12-31,True
+4,VSL004,Davao Pride,Fishing Vessel,30.0,Pedro Lim,Davao Fishers Coop,2026-01-01,9999-12-31,True
+5,VSL005,Southern Cross,Trawler,55.0,Ana Gomez,Zamboanga Coop,2026-01-01,9999-12-31,True
+6,VSL006,Cebu Sunrise,Motorized Banca,5.0,Luis Tan,Cebu Fishers Coop,2026-01-01,9999-12-31,True
+7,VSL007,Quezon Fisher,Fishing Vessel,18.0,Rosa Dela Cruz,Lucena Fishers Coop,2026-01-01,9999-12-31,True
+8,VSL008,Batangas Bay,Motorized Banca,3.8,Carlos Reyes,Batangas Coop,2026-01-01,9999-12-31,True
+9,VSL009,Mindanao Star,Fishing Vessel,22.0,Elena Bautista,CDO Fishers Coop,2026-01-01,9999-12-31,True
+10,VSL010,Leyte Wave,Motorized Banca,4.0,Ramon Villanueva,Tacloban Coop,2026-01-01,9999-12-31,True
